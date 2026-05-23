@@ -68,9 +68,9 @@ class Softmax:
         Returns:
             (batch_size, num_classes) 확률. 각 행의 합은 1입니다.
         """
-        c = np.max(x)
+        c = np.max(x, axis=-1, keepdims=True)
         exp_a = np.exp(x - c)
-        sum_exp_a = np.sum(exp_a)
+        sum_exp_a = np.sum(exp_a, axis=-1, keepdims=True)
         y = exp_a / sum_exp_a
 
         return y
