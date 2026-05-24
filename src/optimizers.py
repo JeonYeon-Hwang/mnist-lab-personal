@@ -17,8 +17,9 @@ class SGD:
 
     def update(self, params, grads):
         """params dict의 모든 파라미터를 제자리(in-place)에서 갱신합니다."""
-        # TODO: params[key]를 gradient 반대 방향으로 업데이트하세요.
-        raise NotImplementedError("SGD.update를 구현하세요.")
+        for key in params.keys():
+            params[key] -= self.lr * grads[key]
+        
 
 
 class Adam:
@@ -34,8 +35,30 @@ class Adam:
         self.lr = lr
         self.m, self.v = {}, {}
         self.t = 0
+        self.v = None
+        self.h = None
 
     def update(self, params, grads):
         """Adam 공식에 따라 params dict의 모든 파라미터를 갱신합니다."""
-        # TODO: m, v 이동평균과 bias correction을 사용해 params를 업데이트하세요.
-        raise NotImplementedError("Adam.update를 구현하세요.")
+    
+        if self.v is None:
+            self.v = {}
+            for key, val in params.items():
+                self.v[key] = np.zeros_like(val)
+
+        if self.h is None:
+            self.h = {}
+            for key, val in params.items():
+                self.h[key] = np.zeros_like(val)
+
+        self.t += 1
+
+        for key in params.keys():
+            self.v[key] = 0.9 * self.v[key] + 0.1 * grads[key]
+            self.h[key] = 0.999 * self.h[key] + 0.001 * (grads[key] ** 2)
+
+            v_corrected = self.v[key] / (1.0 - 0.9 ** self.t)
+            h_corrected = self.h[key] / (1.0 - 0.999 ** self.t)           
+            
+            params[key] -= self.lr * v_corrected / (np.sqrt(h_corrected) + 1e-7)
+        
