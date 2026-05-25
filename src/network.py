@@ -32,6 +32,7 @@ class NeuralNetwork:
         # 권장 구조: 784 -> 512 -> 256 -> 10
         # self.layers는 OrderedDict로 만들고, self.grads는 params와 같은 key를 갖게 합니다.
         self.params = {}
+        self.grads = {}
         
         self.params['W1'] = np.random.randn(784, 512) * np.sqrt(2.0 / 784)
         self.params['b1'] = np.zeros(512)
@@ -97,7 +98,6 @@ class NeuralNetwork:
         Args:
             dout: Softmax+CrossEntropy를 합친 출력층 gradient
         """
-        # TODO: layer를 역순으로 통과시키고 Affine/BatchNorm의 gradient를 self.grads에 모으세요.
         dout = self.last_layer.backward(dout)
         
         for name, layer in reversed(self.layers.items()):
