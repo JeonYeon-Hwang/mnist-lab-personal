@@ -38,19 +38,18 @@ def train(model, optimizer, x_train, y_train, epochs=20, batch_size=128):
             y_answer = y_train[batch_indices]
 
             # 이제 forward로 트레이닝을 합니다 => 예측 점수 산출
-            scores = model.forward(x_sample, train=True)
-            
             # 예측 점수와 실제 점수와 비교하여 오차 점수 산출
-            probs = model.last_layer.forward(scores)
+            probs = model.forward(x_sample, train=True)
             loss = cross_entropy_loss(probs, y_answer)
             batch_loss.append(loss)
 
             # 다음 backward를 수행하여 gradient를 산출
-            dout = np.ones_like(probs) / x_sample.shape[0]
-            dout = model.last_layer.backward(dout)
-            model.backward(dout)
+            dout = probs.copy()
+            dout[np.arange(x_sample.shape[0]), y_answer] -= 1
+            dout /= x_sample.shape[0]
 
             # gradient를 기반으로 모델의 가중치를 수정
+            model.backward(dout)
             optimizer.update(model.params, model.grads)
 
         epoch_loss = np.mean(batch_loss)

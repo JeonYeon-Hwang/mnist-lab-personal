@@ -85,11 +85,15 @@ class NeuralNetwork:
                     layer.train_flg = train
         
         for layer in self.layers.values():
-            x = layer.forward(x)
+            if isinstance(layer, (BatchNorm, Dropout)):
+                x = layer.forward(x, train=train)
+            else:
+                x = layer.forward(x)
         
         x = self.last_layer.forward(x)
 
         return x
+
 
     def backward(self, dout):
         """
@@ -112,6 +116,7 @@ class NeuralNetwork:
                 self.grads['beta' + num] = layer.dbeta
 
         return dout
+    
 
     def loss(self, x, y):
         """현재 모델의 예측 확률을 만든 뒤 cross entropy loss를 반환합니다."""
